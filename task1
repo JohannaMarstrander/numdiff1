@@ -1,4 +1,0 @@
-# PROBLEM 1)
-# a) Solve the problem on the unit square with Dirichlet conditions
-# Set up and implement a finite differences scheme using central differences
-# Write the problem so it can solve the problem with different values for v, f and BCs.
