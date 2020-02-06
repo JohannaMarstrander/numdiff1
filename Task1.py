@@ -29,27 +29,53 @@ class BVP(object):
 def fdm(bvp, M):
     A = np.zeros(((M+1)**2,(M+1)**2))
     h = (bvp.b - bvp.a)/M
-    hh = h*h
+    
     for i in range(1,M):  
         for j in range(1, M): 
-            A[I(i,j,M),I(i,j,M)] = 4 * bvp.mu * 1/hh # P
-            A[I(i,j,M),I(i-1,j,M)] = -bvp.mu/hh - bvp.v(i-1,j)[0] /(2*h) # W
-            A[I(i,j,M),I(i+1,j,M)] = -bvp.mu/hh + bvp.v(i+1,j)[0] /(2*h) # E
-            A[I(i,j,M),I(i,j-1,M)] = -bvp.mu/hh - bvp.v(i,j-1)[1] /(2*h) # S
-            A[I(i,j,M),I(i,j+1,M)] = -bvp.mu/hh + bvp.v(i,j+1)[1] /(2*h) # N
+            A[I(i,j,M),I(i,j,M)] = 4 * bvp.mu # P
+            A[I(i,j,M),I(i-1,j,M)] = -bvp.mu - bvp.v(i-1,j)[0] *  h/2 # W
+            A[I(i,j,M),I(i+1,j,M)] = -bvp.mu + bvp.v(i+1,j)[0] * h/2 # E
+            A[I(i,j,M),I(i,j-1,M)] = -bvp.mu - bvp.v(i,j-1)[1] * h/2 # S
+            A[I(i,j,M),I(i,j+1,M)] = -bvp.mu + bvp.v(i,j+1)[1] * h/2 # N
     
     # Incorporate boundary conditions
     # Add boundary values related to unknowns from the first and last grid ROW
     for j in [0,M]:
         for i in range(0,M+1):
-            A[I(i,j,M),I(i,j,M)] = 1
+            A[I(i,j,M),I(i,j,M)] = h**2
 
     # Add boundary values related to unknowns from the first and last grid COLUMN
     for i in [0,M]:
         for j in range(1,M+1):
-           A[I(i,j,M),I(i,j,M)] = 1
+           A[I(i,j,M),I(i,j,M)] = h**2
             
     return A
+
+# Function for creating rhs of eq depending on f and g
+def rhs(bvp, M):
+    x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
+    h = (bvp.b - bvp.a)/M
+    
+    F = (bvp.f(x,y)).ravel()
+    G = (bvp.g(x,y)).ravel()
+    
+     # Add boundary values related to unknowns from the first and last grid ROW
+    bc_indices = [ I(i,j,M)  for j in [0, M] for i in range(0, M+1) ]
+    F[bc_indices] = G[bc_indices]  
+
+    # Add boundary values related to unknowns from the first and last grid COLUMN
+    bc_indices = [ I(i,j,M) for i in [0, M] for j in range(0, M+1)]
+    F[bc_indices] = G[bc_indices]
+    
+    return F*h**2
+
+# Function for solving the bvp
+def solve_bvp(bvp, M):
+    A = fdm(bvp, M)
+    F = rhs(bvp,M)
+    U = la.solve(A, F)
+    return U
+    
 
 # Make a test problem: 
 def f(x, y):
@@ -67,28 +93,14 @@ M = 5
 #Define the grid using a sparse grid, and using the imaginary number 1j to include the endpoints
 x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
 
-# Evaluate u on the grid. The output will be a 2-dimensional array 
-# where U_ex_grid[i,j] = u_ex(x_i, y_j)
-U_ex= ex_1.uexact(x, y).ravel()
-F = (ex_1.f(x,y)).ravel()
+# Evaluate u on the grid.
+U_ext= ex_1.uexact(x, y).ravel()
+U = solve_bvp(ex_1, M)
 
-# Overskriver F
-for j in [0,M]:
-    for i in range(0,M+1):  
-        F[I(i,j,M)] = ex_1.g(x[j],x[i])
-
-for i in [0,M]:
-    for j in range(1,M+1):
-       F[I(i,j,M)] = ex_1.g(x[j],x[i])
-
-A = fdm(ex_1, M)
-print(A@U_ex)
-print(F)
-U = la.solve(A, F)
 print("Numerical sol:", U)
-print("Exact sol:" ,U_ex)
+print("Exact sol:" ,U_ext)
 
-error = U_ex-U
+error = U_ext-U
 print(error)
 Eh = np.linalg.norm(error,ord=np.inf) 
 print('The error is {:.2e}'.format(Eh))
