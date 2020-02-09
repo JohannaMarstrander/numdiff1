@@ -1,6 +1,9 @@
 import numpy as np
 import scipy.linalg as la
-
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
 
 # PROBLEM 1)
 # a) Solve the problem on the unit square with Dirichlet conditions
@@ -26,17 +29,20 @@ class BVP(object):
 
 # A function for creating the finite difference matrix
 # NOTE: Dirichlet conditions
+
 def fdm(bvp, M):
     A = np.zeros(((M+1)**2,(M+1)**2))
     h = (bvp.b - bvp.a)/M
-    
+    x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
+
+
     for i in range(1,M):  
         for j in range(1, M): 
             A[I(i,j,M),I(i,j,M)] = 4 * bvp.mu # P
-            A[I(i,j,M),I(i-1,j,M)] = -bvp.mu - bvp.v(i-1,j)[0] *  h/2 # W
-            A[I(i,j,M),I(i+1,j,M)] = -bvp.mu + bvp.v(i+1,j)[0] * h/2 # E
-            A[I(i,j,M),I(i,j-1,M)] = -bvp.mu - bvp.v(i,j-1)[1] * h/2 # S
-            A[I(i,j,M),I(i,j+1,M)] = -bvp.mu + bvp.v(i,j+1)[1] * h/2 # N
+            A[I(i,j,M),I(i-1,j,M)] = -bvp.mu - bvp.v(x[i-1],y[:,j])[0] *  h/2 # W
+            A[I(i,j,M),I(i+1,j,M)] = -bvp.mu + bvp.v(x[i+1],y[:,j])[0] * h/2 # E
+            A[I(i,j,M),I(i,j-1,M)] = -bvp.mu - bvp.v(x[i],y[:,j-1])[1] * h/2 # S
+            A[I(i,j,M),I(i,j+1,M)] = -bvp.mu + bvp.v(x[i],y[:,j+1])[1] * h/2 # N
     
     # Incorporate boundary conditions
     # Add boundary values related to unknowns from the first and last grid ROW
@@ -61,7 +67,8 @@ def rhs(bvp, M):
     
      # Add boundary values related to unknowns from the first and last grid ROW
     bc_indices = [ I(i,j,M)  for j in [0, M] for i in range(0, M+1) ]
-    F[bc_indices] = G[bc_indices]  
+
+    F[bc_indices] = G[bc_indices]
 
     # Add boundary values related to unknowns from the first and last grid COLUMN
     bc_indices = [ I(i,j,M) for i in [0, M] for j in range(0, M+1)]
@@ -75,34 +82,24 @@ def solve_bvp(bvp, M):
     F = rhs(bvp,M)
     U = la.solve(A, F)
     return U
+
+
+def plott(x,y,Z):
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    surf = ax.plot_surface(x, y, Z, cmap=cm.coolwarm,
+                           linewidth=0, antialiased=False)
+
+    # Customize the z axis.
+    ax.set_zlim(-1.0, 2)
+    ax.zaxis.set_major_locator(LinearLocator(10))
+    ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+
+    # Add a color bar which maps values to colors.
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+
+    plt.show()
     
 
-# Make a test problem: 
-def f(x, y):
-    return (4*x + 2*y - 6)
-def u_ex(x, y):
-    return (2*x**2 + y**2 )
-def v(x,y):
-    return np.array([1,1])
-
-ex_1 = BVP(f, v, u_ex, 0, 1, 1, u_ex) 
-
-# Number of subdivisions in each dimension
-M = 5
-
-#Define the grid using a sparse grid, and using the imaginary number 1j to include the endpoints
-x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
-
-# Evaluate u on the grid.
-U_ext= ex_1.uexact(x, y).ravel()
-U = solve_bvp(ex_1, M)
-
-print("Numerical sol:", U)
-print("Exact sol:" ,U_ext)
-
-error = U_ext-U
-print(error)
-Eh = np.linalg.norm(error,ord=np.inf) 
-print('The error is {:.2e}'.format(Eh))
-
-    
