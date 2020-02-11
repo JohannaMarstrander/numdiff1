@@ -4,17 +4,15 @@ import matplotlib.pyplot as plt
 from Task1 import BVP,solve_bvp,plott
 
 
-
-
 # Make a test problem:
 def f(x, y):
-    return (4*x + 2*y - 0.06)
+    return (v(x,y)[0]*4*x + v(x,y)[1]*2*y - 6)
 def u_ex(x, y):
     return (2*x**2 + y**2 )
 def v(x,y):
-    return np.array([1,1])
+    return np.array([x,y*y])
 
-ex_1 = BVP(f, v, u_ex, 0, 1, 0.01, u_ex)
+ex_1 = BVP(f, v, u_ex, 0, 1, 1, u_ex)
 
 # Number of subdivisions in each dimension
 M = 5
@@ -37,6 +35,6 @@ Eh = np.linalg.norm(error,ord=np.inf)
 print('The error is {:.2e}'.format(Eh))
 
 
-U_ny=np.reshape(U,(M+1,M+1))
 
-plott(x,y,U_ny)
+plott(x,y,U.reshape((M+1,M+1)))
+plott(x,y,u_ex(x,y))

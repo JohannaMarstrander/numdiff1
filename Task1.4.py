@@ -2,6 +2,11 @@ import numpy as np
 import scipy.linalg as la
 import matplotlib.pyplot as plt
 
+# save numpy array as csv file
+from numpy import asarray
+from numpy import savetxt
+
+
 from Task1 import BVP,solve_bvp,plott
 
 # def u(x,y):
@@ -41,9 +46,13 @@ for M1 in M_list:
     U = solve_bvp(ex, M1)
     U_ny=U.reshape((M1+1,M1+1))
     #U_ny = np.reshape(U, (M1 + 1, M1 + 1))
-    print(U_ny)
+    #print(U_ny)
     plott(x,y,U_ny)
     U_list.append(U)
+
+
+
+
 
 
 

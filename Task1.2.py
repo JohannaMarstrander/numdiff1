@@ -8,9 +8,9 @@ def u(x,y):
     return np.sin(np.pi*2*x) + np.cos(np.pi*2*y)
 def f1(x,y):
     return (0.01*((2*np.pi)**2*np.sin(np.pi*2*x) + (2*np.pi)**2 * np.cos(np.pi*2*y))
-           +(2*np.pi)*np.cos(np.pi*2*x) - (2*np.pi)*np.sin(np.pi*2*y))
+           +v(x,y)[0]*(2*np.pi)*np.cos(np.pi*2*x) - v(x,y)[1]*(2*np.pi)*np.sin(np.pi*2*y))
 def v(x,y):
-    return np.array([1,1])
+    return np.array([x,-2*y])
 
 
 #error analysis
@@ -33,9 +33,8 @@ print("order",order)
 plt.loglog(h_list,E,'o-')
 plt.show()
 
-
-U_ex=ex.uexact(x, y)
-plott(x,y,U_ex)
+plott(x,y,u(x,y))
 
 U_ny=U.reshape((M1+1,M1+1))
 plott(x,y,U_ny)
+

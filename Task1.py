@@ -35,14 +35,14 @@ def fdm(bvp, M):
     h = (bvp.b - bvp.a)/M
     x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
 
-
+    #Nanna tror i går langs y-aksen, og j-langs x aksen og dermed er retningene motsatt av det som står under
     for i in range(1,M):  
         for j in range(1, M): 
             A[I(i,j,M),I(i,j,M)] = 4 * bvp.mu # P
-            A[I(i,j,M),I(i-1,j,M)] = -bvp.mu - bvp.v(x[i-1],y[:,j])[0] *  h/2 # W
-            A[I(i,j,M),I(i+1,j,M)] = -bvp.mu + bvp.v(x[i+1],y[:,j])[0] * h/2 # E
-            A[I(i,j,M),I(i,j-1,M)] = -bvp.mu - bvp.v(x[i],y[:,j-1])[1] * h/2 # S
-            A[I(i,j,M),I(i,j+1,M)] = -bvp.mu + bvp.v(x[i],y[:,j+1])[1] * h/2 # N
+            A[I(i,j,M),I(i-1,j,M)] = (-bvp.mu - bvp.v(x[j],x[i])[1] *  h/2) # W
+            A[I(i,j,M),I(i+1,j,M)] = (-bvp.mu + bvp.v(x[j],x[i])[1] * h/2) # E
+            A[I(i,j,M),I(i,j-1,M)] = (-bvp.mu - bvp.v(x[j],x[i])[0] * h/2) # S
+            A[I(i,j,M),I(i,j+1,M)] = (-bvp.mu + bvp.v(x[j],x[i])[0] * h/2) # N
     
     # Incorporate boundary conditions
     # Add boundary values related to unknowns from the first and last grid ROW
@@ -54,7 +54,9 @@ def fdm(bvp, M):
     for i in [0,M]:
         for j in range(1,M+1):
            A[I(i,j,M),I(i,j,M)] = h**2
-            
+
+    #for i in range(0,(M+1)**2):
+        #print(A[i,:])
     return A
 
 # Function for creating rhs of eq depending on f and g
@@ -84,6 +86,7 @@ def solve_bvp(bvp, M):
     return U
 
 
+
 def plott(x,y,Z):
 
     fig = plt.figure()
@@ -93,7 +96,7 @@ def plott(x,y,Z):
                            linewidth=0, antialiased=False)
 
     # Customize the z axis.
-    ax.set_zlim(-1.0, 2)
+    ax.set_zlim(-1, 2)
     ax.zaxis.set_major_locator(LinearLocator(10))
     ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
@@ -101,5 +104,6 @@ def plott(x,y,Z):
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
     plt.show()
-    
+
+
 
