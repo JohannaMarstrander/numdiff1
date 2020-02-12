@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from scipy import sparse
+from scipy.sparse.linalg import spsolve
 
 # PROBLEM 1)
 # a) Solve the problem on the unit square with Dirichlet conditions
@@ -57,7 +59,8 @@ def fdm(bvp, M):
 
     #for i in range(0,(M+1)**2):
         #print(A[i,:])
-    return A
+
+    return sparse.csr_matrix(A)   # Transform to sparse matrix for faster calculations
 
 # Function for creating rhs of eq depending on f and g
 def rhs(bvp, M):
@@ -78,11 +81,12 @@ def rhs(bvp, M):
     
     return F*h**2
 
+
 # Function for solving the bvp
 def solve_bvp(bvp, M):
     A = fdm(bvp, M)
     F = rhs(bvp,M)
-    U = la.solve(A, F)
+    U = spsolve(A, F)   # spsolve since A is sparse
     return U
 
 
