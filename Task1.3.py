@@ -3,6 +3,8 @@ from Task1 import I, BVP, plott
 import numpy as np
 import scipy.linalg as la
 from matplotlib import pyplot as plt
+from scipy import sparse
+from scipy.sparse.linalg import spsolve
 
 # Make a test problem:
 def f(x, y):
@@ -78,7 +80,7 @@ def fdm_circle(bvp, M, S):
         for j in range(1,M+1):
            A[I(i,j,M),I(i,j,M)] = h**2
 
-    return A
+    return sparse.csr_matrix(A)   # Transform to sparse matrix for faster calculations
 
 def rhs_circle(bvp, M, S):
     x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
@@ -106,7 +108,7 @@ def rhs_circle(bvp, M, S):
 def solve_bvp_circle(bvp, M, S):
     A = fdm_circle(bvp, M, S)
     F = rhs_circle(bvp,M, S)
-    U = la.solve(A, F)
+    U = spsolve(A, F)
     return U
 
 ex_1 = BVP(f2, v, u_ex2, 0, 1, 1, u_ex2)
@@ -136,12 +138,12 @@ print(error1)
 Eh = np.linalg.norm(error1,ord=np.inf)
 print('The error is {:.2e}'.format(Eh))
 
-#plott(x,y,U.reshape((M+1,M+1)))
-#plott(x,y,U_ext.reshape((M+1,M+1)))
+plott(x,y,U.reshape((M+1,M+1)))
+plott(x,y,U_ext.reshape((M+1,M+1)))
 plott(x,y,error1.reshape((M+1,M+1)))
 
 #error analysis
-M_list=[10,20,40,80]
+M_list=[10,20,40,80,160]
 E=[]
 h_list=[]
 for M1 in M_list:
