@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from Task1 import I, BVP, plott
 import numpy as np
-import scipy.linalg as la
 from matplotlib import pyplot as plt
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
