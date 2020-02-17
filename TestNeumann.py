@@ -46,7 +46,7 @@ def fdm(bvp, M):
 
     # Incorporate boundary conditions
     # Add boundary values related to unknowns from the first and last grid ROW
-    for j in [0]:
+    for j in [0,M]:
         for i in range(1, M + 1):
             A[I(i, j, M), I(i, j, M)] = h ** 2
 
@@ -58,19 +58,19 @@ def fdm(bvp, M):
 
     #Neumannconditions
     #ToDO: Sjekk alle range
-    for j in [M]:
-        for i in range(1, M ): #tror dette gir mening for å ikke få med hjørner
-            A[I(i, j, M), I(i, j, M)] = 4 * bvp.mu
-            A[I(i, j, M), I(i, j-1, M)] = -2*bvp.mu
-            A[I(i, j, M), I(i-1, j , M)] = -bvp.mu - bvp.v(x[j], x[i])[0] * h / 2
-            A[I(i, j, M), I(i + 1, j, M)] = -bvp.mu + bvp.v(x[j], x[i])[0] * h / 2
+    #for j in [M]:
+    #    for i in range(1, M ): #tror dette gir mening for å ikke få med hjørner
+    #        A[I(i, j, M), I(i, j, M)] = 4 * bvp.mu
+    #        A[I(i, j, M), I(i, j-1, M)] = -2*bvp.mu
+    #        A[I(i, j, M), I(i-1, j , M)] = -bvp.mu - bvp.v(x[j], x[i])[0] * h / 2
+    #        A[I(i, j, M), I(i + 1, j, M)] = -bvp.mu + bvp.v(x[j], x[i])[0] * h / 2
 
     for i in [0]:
         for j in range(0, M ):
             A[I(i, j, M), I(i, j, M)] = 4 * bvp.mu
             A[I(i, j, M), I(i+1, j, M)] = -2*bvp.mu
-            A[I(i, j, M), I(i, j+1 , M)] = -bvp.mu + bvp.v(x[j], x[i])[1]
-            A[I(i, j, M), I(i , j-1, M)] = -bvp.mu - bvp.v(x[j], x[i])[1]
+            A[I(i, j, M), I(i, j+1 , M)] = -bvp.mu + bvp.v(x[j], x[i])[0]
+            A[I(i, j, M), I(i , j-1, M)] = -bvp.mu - bvp.v(x[j], x[i])[0]
 
     A[I(0,M,M),I(0,M,M)]= 4 * bvp.mu
     A[I(0, M, M), I(0, M-1, M)] = -2 * bvp.mu
@@ -94,7 +94,7 @@ def rhs(bvp, M):
     G = (bvp.g(x, y)).ravel()
 
     # Add boundary values related to unknowns from the first and last grid ROW
-    bc_indices = [I(i, j, M) for j in [0] for i in range(0, M + 1)]
+    bc_indices = [I(i, j, M) for j in [0,M] for i in range(1, M )]
     F[bc_indices] = G[bc_indices]
 
     # Add boundary values related to unknowns from the first and last grid COLUMN
@@ -128,10 +128,12 @@ def plott(x, y, Z):
                            linewidth=0, antialiased=False)
 
     # Customize the z axis.
-    ax.set_zlim(-1, 2)
-    ax.zaxis.set_major_locator(LinearLocator(10))
-    ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+    #ax.set_zlim(-1, 2)
+    #ax.zaxis.set_major_locator(LinearLocator(10))
+    #ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
 
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
     # Add a color bar which maps values to colors.
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
@@ -145,18 +147,18 @@ def u(x, y):
 def v(x,y):
     return np.array([y,-x])
 
-M = 10
-ex_1 = BVP(f1, v, u, 0, 1, 0.01)
+
+#ex_1 = BVP(f1, v, u, 0, 1, 0.01)
 #Define the grid using a sparse grid, and using the imaginary number 1j to include the endpoints
-x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
+#x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
 
 # Evaluate u on the grid.
 #U_ext= ex_1.uexact(x, y).ravel()
-U = solve_bvp(ex_1, M)
+#U = solve_bvp(ex_1, M)
 
 
 
-M_list=[5,10,20,40,80]
+M_list=[20,30,40]
 #M_list = [20]
 E=[]
 h_list=[]

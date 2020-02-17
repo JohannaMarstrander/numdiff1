@@ -18,7 +18,7 @@ def u2(x,y):
 def f2(x,y):
     return -0.5*(np.exp(x)+2*np.exp(y)) + v2(x,y)[0]*np.exp(x) + 2*v2(x,y)[1]*np.exp(y) #K=1/& * (np.exp(1) + 1*np.exp(1)/my + 1*2*np.exp(1)/my
 def v2(x,y):
-    return np.array([1,1])
+    return np.array([2*x,y])
 
 #error analysis
 M_list=[5,10,20,40,80]
@@ -39,13 +39,10 @@ print("order",order)
 
 h_list=np.array(h_list)
 
-my=0.5
+
 plt.figure()
 plt.loglog(h_list,E,'o-')
-plt.loglog(h_list,h_list**2*my*1/12 * (np.exp(1) + 1*np.exp(1)/my + 1*2*np.exp(1)/my  ) )
-#plt.loglog(h_list,(h_list**2)*1/12*(0.01*((2*np.pi)**4)+2*(2*np.pi)**3),label='upper bound')
-#plt.loglog(h_list,(h_list**2)*1/12*(np.exp(1)+np.exp(1)+2*np.exp(1)),label='upper bound')
-#plt.legend()
+plt.loglog(h_list,h_list**2*1/12 * (np.exp(1) + 2*1*np.exp(1) + 1*2*np.exp(1)  ) )
 plt.show()
 
 

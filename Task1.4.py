@@ -35,7 +35,7 @@ U = solve_bvp(ex_1, M)
 
 
 
-M_list=[5,10,20,40,80]
+M_list=[20,30,40]
 #M_list = [20]
 E=[]
 h_list=[]

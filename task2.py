@@ -68,7 +68,7 @@ def jacobi(U,M):
 
 def G1(U,M):
     G = np.zeros((M+1)*(M+1))
-    lamb = 2
+    lamb = 1.5
     h = 1/M
     hh= h*h
     #hjørner
@@ -82,9 +82,9 @@ def G1(U,M):
     #kanter
     for i in range(1,M):
         G[I(i, 0, M)] = (-4 * U[I(i, 0, M)] + U[I(i - 1, 0, M)]  + U[I(i,  1, M)] + U[
-            I(i + 1, 0, M)]+1) * U[I(i, 0, M)] ** 2 * 1 / hh - lamb
+            I(i + 1, 0, M)]+1 ) * U[I(i, 0, M)] ** 2 * 1 / hh - lamb
         G[I(i, M, M)] = (-4 * U[I(i, M, M)] + U[I(i - 1, M, M)]  + U[I(i, M - 1, M)] + U[
-            I(i + 1, M, M)]+1) * (U[I(i, M, M)] ** 2) * 1 / hh - lamb
+            I(i + 1, M, M)]+1 ) * (U[I(i, M, M)] ** 2) * 1 / hh - lamb
 
     for j in range(1,M):
         G[I(0, j, M)] = (-4 * U[I(0, j, M)] + U[I(0, j - 1, M)] + U[I(0, j + 1, M)] + U[
@@ -101,7 +101,7 @@ def G1(U,M):
 
 M=60
 err=10
-tol=0.0001
+tol=0.0000001
 it=0
 iter_max=100
 u_k1=np.linspace(0.9,0.95,(M+1)*(M+1))
