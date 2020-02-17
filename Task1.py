@@ -87,6 +87,7 @@ def solve_bvp(bvp, M):
     A = fdm(bvp, M)
     F = rhs(bvp,M)
     U = spsolve(A, F)   # spsolve since A is sparse
+
     return U
 
 
@@ -98,7 +99,6 @@ def plott(x,y,Z):
 
     surf = ax.plot_surface(x, y, Z, cmap=cm.coolwarm,
                            linewidth=0, antialiased=False)
-
 
     ax.set_xlabel('x')
     ax.set_ylabel('y')
