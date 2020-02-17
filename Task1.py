@@ -103,7 +103,6 @@ def plott(x,y,Z):
     ax.set_xlabel('x')
     ax.set_ylabel('y')
 
-
     # Add a color bar which maps values to colors.
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
