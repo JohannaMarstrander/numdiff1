@@ -21,7 +21,7 @@ def v2(x,y):
     return np.array([2*x,y])
 
 #error analysis
-M_list=[5,10,20,40,80]
+M_list=[10, 20, 39, 76, 150]
 E=[]
 h_list=[]
 for M1 in M_list:
