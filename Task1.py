@@ -99,8 +99,10 @@ def plott(x,y,Z):
     surf = ax.plot_surface(x, y, Z, cmap=cm.coolwarm,
                            linewidth=0, antialiased=False)
 
+
     ax.set_xlabel('x')
     ax.set_ylabel('y')
+
 
     # Add a color bar which maps values to colors.
     fig.colorbar(surf, shrink=0.5, aspect=5)
