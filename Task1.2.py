@@ -31,9 +31,12 @@ def v2(x, y):
 
 
 # error analysis
-M_list = [5, 10, 20, 40, 80]
-E = []
-h_list = []
+
+#error analysis
+M_list=[10, 20, 39, 76, 150]
+E=[]
+h_list=[]
+
 for M1 in M_list:
     x, y = np.ogrid[0:1:(M1 + 1) * 1j, 0:1:(M1 + 1) * 1j]
     ex = BVP(f2, v2, u2, 0, 1, 0.5, u2)
