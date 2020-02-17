@@ -24,7 +24,7 @@ def u(x, y):
 def v(x,y):
     return np.array([y,-x])
 
-M = 10
+M = 100
 ex_1 = BVP(f1, v, u, 0, 1, 0.01)
 #Define the grid using a sparse grid, and using the imaginary number 1j to include the endpoints
 x,y = np.ogrid[0:1:(M+1)*1j, 0:1:(M+1)*1j]
@@ -45,8 +45,6 @@ for M1 in M_list:
     ex = BVP(f1, v, u, 0, 1, 0.01)
     U = solve_bvp(ex, M1)
     U_ny=U.reshape((M1+1,M1+1))
-    #U_ny = np.reshape(U, (M1 + 1, M1 + 1))
-    #print(U_ny)
     plott(x,y,U_ny)
     U_list.append(U)
 
