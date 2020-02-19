@@ -5,12 +5,12 @@ from Task1 import BVP, solve_bvp, plott
 
 
 def u(x, y):
-    return np.sin(np.pi * 2 * x) + np.cos(np.pi * 2 * y)
+    return np.sin(np.pi * 1/2 * x) + np.cos(np.pi  * y)
 
 
 def f1(x, y):
-    return (((2 * np.pi) ** 2 * np.sin(np.pi * 2 * x) + (2 * np.pi) ** 2 * np.cos(np.pi * 2 * y))
-            + v(x, y)[0] * (2 * np.pi) * np.cos(np.pi * 2 * x) - v(x, y)[1] * (2 * np.pi) * np.sin(np.pi * 2 * y))
+    return (((1/4 * np.pi ** 2) * np.sin(np.pi * 1/2 * x) + (np.pi) ** 2 * np.cos(np.pi * y))
+            + v(x, y)[0] * (1/2 * np.pi) * np.cos(np.pi * 1/2 * x) - v(x, y)[1] * ( np.pi) * np.sin(np.pi * y))
 
 
 def v(x, y):
@@ -29,7 +29,8 @@ def f2(x, y):
 def v2(x, y):
     return np.array([2 * x, y])
 
-
+mu = 1
+mu2 = 0.5
 # error analysis
 
 #error analysis
@@ -39,9 +40,13 @@ h_list=[]
 
 for M1 in M_list:
     x, y = np.ogrid[0:1:(M1 + 1) * 1j, 0:1:(M1 + 1) * 1j]
-    ex = BVP(f2, v2, u2, 0, 1, 0.5, u2)
+    ex = BVP(f1, v, u, 0, 1, mu, u)
     U = solve_bvp(ex, M1)
-    U_ext = ex.uexact(x, y).ravel()
+    U_ext = ex.uexact(x, y)
+    if M1 == 150:
+        plott(x, y, U.reshape((M1 + 1, M1 + 1)))
+        plott(x,y, U_ext)
+    U_ext = U_ext.ravel()
     error = U_ext - U
     E.append(np.linalg.norm(error, ord=np.inf))
     h_list.append(1 / M1)
@@ -54,5 +59,6 @@ h_list = np.array(h_list)
 
 plt.figure()
 plt.loglog(h_list, E, 'o-')
-plt.loglog(h_list, h_list ** 2 * 1 / 12 * (np.exp(1) + 2 * 1 * np.exp(1) + 1 * 2 * np.exp(1)))
+#plt.loglog(h_list, h_list ** 2 * 1 / 12 * (np.exp(1) + 2 * 1 * np.exp(1) + 1 * 2 * np.exp(1)))
+plt.loglog(h_list, h_list ** 2 * 1 / 12 * ((1+1/16) * np.pi **4 + 18 * np.pi ** 3))
 plt.show()
