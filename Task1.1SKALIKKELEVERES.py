@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.linalg as la
 import matplotlib.pyplot as plt
-from Task1 import BVP, solve_bvp, plott, rhs
+from Task1_a import BVP, solve_bvp, plott, rhs
 
 
 # Make a test problem:

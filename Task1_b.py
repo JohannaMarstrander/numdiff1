@@ -1,8 +1,6 @@
 import numpy as np
-import scipy.linalg as la
 import matplotlib.pyplot as plt
-from Task1 import BVP, solve_bvp, plott
-
+from Task1_a import BVP, solve_bvp, plott
 
 def u(x, y):
     return np.sin(np.pi * 2 * x) + np.cos(np.pi * 2 * y)
@@ -33,7 +31,7 @@ def v2(x, y):
 # error analysis
 
 #error analysis
-M_list=[10, 20, 39, 76, 150]
+M_list=[10, 20, 39, 76] #150
 E=[]
 h_list=[]
 
@@ -49,7 +47,6 @@ for M1 in M_list:
 print(E)
 order = np.polyfit(np.log(h_list), np.log(E), 1)[0]
 print("order", order)
-
 h_list = np.array(h_list)
 
 plt.figure()
