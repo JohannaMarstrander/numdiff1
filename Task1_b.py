@@ -17,7 +17,7 @@ def v(x, y):
 
 
 # error analysis
-M_list = [10, 20, 39, 76]  # 150
+M_list = [10, 20, 39, 76 , 150]
 E = []
 h_list = []
 
@@ -41,7 +41,5 @@ h_list = np.array(h_list)
 
 plt.figure()
 plt.loglog(h_list, E, 'o-')
-print((1 / 12) * ((1) * np.pi ** 4 + (1 + 1 / 8) * np.pi ** 3))
-plt.loglog(h_list, h_list ** 2 * 1 / 12 * ((1 + 1 / 16) * np.pi ** 4 + 18 * np.pi ** 3))
-plt.loglog(h_list, h_list ** 2 * 1 / 12 * (np.pi ** 4 + (1 + 1 / 8) * np.pi ** 3), color='r')
+plt.loglog(h_list, h_list ** 2 * 1 / 12 * (np.pi ** 4 + (1 + 1 / 8) * np.pi ** 3))
 plt.show()
