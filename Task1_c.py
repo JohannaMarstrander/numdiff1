@@ -5,17 +5,25 @@ from matplotlib import pyplot as plt
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 
-# Make a test problem:
+# Main test problem: 
 def f(x, y):
-    return (v(x, y)[0] * (y - 1) + v(x, y)[1] * (x - 1))
+    return (-2 + 2* x * v(x,y)[0] - 1 * v(x,y)[1])
 
 
 def u_ex(x, y):
-    return ((1 - x) * (1 - y))
+    return (x**2 - y + 1)
 
 
 def v(x, y):
-    return np.array([x * y, x ** 2])
+    return np.array([x, y])
+
+#Some other test problems
+def f1(x, y):
+    return (v(x, y)[0] * (y - 1) + v(x, y)[1] * (x - 1))
+
+
+def u_ex1(x, y):
+    return ((1 - x) * (1 - y))
 
 
 def f2(x, y):
@@ -38,13 +46,12 @@ def shape_matrix(M):
                 A[i, j] = 2
     return A
 
-
+#Funksjon for å regne ut finite-difference matrix A
 def fdm_circle(bvp, M, S):
     A = np.zeros(((M + 1) ** 2, (M + 1) ** 2))
     h = (bvp.b - bvp.a) / M
     x, y = np.ogrid[0:1:(M + 1) * 1j, 0:1:(M + 1) * 1j]
 
-    # Nanna tror i går langs y-aksen, og j-langs x aksen og dermed er retningene motsatt av det som står under
     for i in range(1, M):
         for j in range(1, M):
             if S[i, j] == 0:  # Utenfor området.
@@ -55,27 +62,30 @@ def fdm_circle(bvp, M, S):
                 A[I(i, j, M), I(i + 1, j, M)] = (-bvp.mu + bvp.v(x[j], x[i])[1] * h / 2)  # E
                 A[I(i, j, M), I(i, j - 1, M)] = (-bvp.mu - bvp.v(x[j], x[i])[0] * h / 2)  # S
                 A[I(i, j, M), I(i, j + 1, M)] = (-bvp.mu + bvp.v(x[j], x[i])[0] * h / 2)  # N
-            elif S[i, j] == 2:
+            elif S[i, j] == 2: #Punkter som krever ekstra oppmerksomhet, land randen
                 theta_x = (np.sqrt(M * M - i * i) - j)
                 theta_y = (np.sqrt(M * M - j * j) - i)
-
-                if theta_y < 1 and theta_y > 0:
-                    A[I(i, j, M), I(i, j, M)] += 2 * bvp.mu / theta_y
-                    A[I(i, j, M), I(i - 1, j, M)] = -2 * bvp.mu / (1 + theta_y) - bvp.v(x[j], x[i])[1] * h / (
-                                2 * (1 + theta_y))
-                else:
-                    A[I(i, j, M), I(i, j, M)] += 2 * bvp.mu
-                    A[I(i, j, M), I(i - 1, j, M)] = (-bvp.mu - bvp.v(x[j], x[i])[1] * h / 2)  # W
-                    A[I(i, j, M), I(i + 1, j, M)] = (-bvp.mu + bvp.v(x[j], x[i])[1] * h / 2)  # E
-
-                if theta_x < 1 and theta_x > 0:
-                    A[I(i, j, M), I(i, j, M)] += 2 * bvp.mu / theta_x
-                    A[I(i, j, M), I(i, j - 1, M)] = -2 * bvp.mu / (1 + theta_x) - bvp.v(x[j], x[i])[0] * h / (
-                                2 * (1 + theta_x))  # S
-                else:
-                    A[I(i, j, M), I(i, j, M)] += 2 * bvp.mu
-                    A[I(i, j, M), I(i, j - 1, M)] = (-bvp.mu - bvp.v(x[j], x[i])[0] * h / 2)  # S
-                    A[I(i, j, M), I(i, j + 1, M)] = (-bvp.mu + bvp.v(x[j], x[i])[0] * h / 2)  # N
+                
+                if theta_x == 0: 
+                    A[I(i, j, M), I(i, j, M)] = h ** 2
+                else: 
+                    if theta_y < 1 and theta_y > 0:
+                        A[I(i, j, M), I(i, j, M)] += 2 * bvp.mu / theta_y
+                        A[I(i, j, M), I(i - 1, j, M)] = -2 * bvp.mu / (1 + theta_y) - bvp.v(x[j], x[i])[1] * h / (
+                                    2 * (1 + theta_y))
+                    else:
+                        A[I(i, j, M), I(i, j, M)] += 2 * bvp.mu
+                        A[I(i, j, M), I(i - 1, j, M)] = (-bvp.mu - bvp.v(x[j], x[i])[1] * h / 2)  # W
+                        A[I(i, j, M), I(i + 1, j, M)] = (-bvp.mu + bvp.v(x[j], x[i])[1] * h / 2)  # E
+    
+                    if theta_x < 1 and theta_x > 0:
+                        A[I(i, j, M), I(i, j, M)] += 2 * bvp.mu / theta_x
+                        A[I(i, j, M), I(i, j - 1, M)] = -2 * bvp.mu / (1 + theta_x) - bvp.v(x[j], x[i])[0] * h / (
+                                    2 * (1 + theta_x))  # S
+                    else:
+                        A[I(i, j, M), I(i, j, M)] += 2 * bvp.mu
+                        A[I(i, j, M), I(i, j - 1, M)] = (-bvp.mu - bvp.v(x[j], x[i])[0] * h / 2)  # S
+                        A[I(i, j, M), I(i, j + 1, M)] = (-bvp.mu + bvp.v(x[j], x[i])[0] * h / 2)  # N
 
     # Incorporate boundary conditions
     # Add boundary values related to unknowns from the first and last grid ROW
@@ -90,7 +100,7 @@ def fdm_circle(bvp, M, S):
 
     return sparse.csr_matrix(A)  # Transform to sparse matrix for faster calculations
 
-
+#Funksjon for å lage venstresiden av ligningen, F
 def rhs_circle(bvp, M, S):
     x, y = np.ogrid[0:1:(M + 1) * 1j, 0:1:(M + 1) * 1j]
     h = (bvp.b - bvp.a) / M
@@ -106,16 +116,22 @@ def rhs_circle(bvp, M, S):
             if S[i, j] == 2:
                 theta_x = (np.sqrt(M * M - i * i) - j)
                 theta_y = (np.sqrt(M * M - j * j) - i)
-                if theta_x < 1 and theta_x > 0:
-                    F[I(i, j, M)] += 2 * bvp.mu / (h ** 2 * (1 + theta_x) * theta_x) * bvp.g(np.sqrt(1 - y[:, i] ** 2),
-                                                                                             y[:, i])
-                if theta_y < 1 and theta_y > 0:
-                    F[I(i, j, M)] += 2 * bvp.mu / (h ** 2 * (1 + theta_y) * theta_y) * bvp.g(x[j],
-                                                                                             np.sqrt(1 - x[j] ** 2))
+                
+                if theta_x == 0: 
+                    F[I(i, j, M)] = bvp.g(x[j], y[:, i])
+                else:
+                
+                    if theta_x < 1 and theta_x > 0:
+                        F[I(i, j, M)] += 2 * bvp.mu / (h ** 2 * (1 + theta_x) * theta_x) * bvp.g(np.sqrt(1 - y[:, i] ** 2),
+                                                                                                 y[:, i])
+                    if theta_y < 1 and theta_y > 0:
+                        F[I(i, j, M)] += 2 * bvp.mu / (h ** 2 * (1 + theta_y) * theta_y) * bvp.g(x[j],
+                                                                                                 np.sqrt(1 - x[j] ** 2))
 
     return F * h ** 2
 
 
+#Function for solving the problem
 def solve_bvp_circle(bvp, M, S):
     A = fdm_circle(bvp, M, S)
     F = rhs_circle(bvp, M, S)
@@ -123,7 +139,7 @@ def solve_bvp_circle(bvp, M, S):
     return U
 
 
-ex_1 = BVP(f2, v, u_ex2, 0, 1, 1, u_ex2)
+ex_1 = BVP(f, v, u_ex, 0, 1, 1, u_ex)
 
 # Number of subdivisions in each dimension
 M = 40
@@ -144,7 +160,7 @@ U = solve_bvp_circle(ex_1, M, S)
 print("Numerical sol:", U)
 print("Exact sol:", U_ext)
 
-error1 = U_ext - U
+error1 = U - U_ext
 print(error1)
 Eh = np.linalg.norm(error1, ord=np.inf)
 print('The error is {:.2e}'.format(Eh))
@@ -154,7 +170,7 @@ plott(x, y, U_ext.reshape((M + 1, M + 1)))
 plott(x, y, error1.reshape((M + 1, M + 1)))
 
 # error analysis
-M_list = [10, 20, 40, 80, 160]
+M_list = [20, 38, 76, 150]
 E = []
 h_list = []
 for M1 in M_list:
